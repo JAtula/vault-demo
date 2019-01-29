@@ -16,10 +16,10 @@ else
     # Write the main.tf file
     cat << EOF > main.tf
 provider "aws" {
-region                  = "eu-west-1"
-shared_credentials_file = "./creds"
-profile                 = "tf_admin"
-version                 = ">= v1.57.0"
+    region                  = "eu-west-1"
+    shared_credentials_file = "./creds"
+    profile                 = "tf_admin"
+    version                 = ">= v1.57.0"
 }
 
 terraform {
@@ -29,7 +29,7 @@ terraform {
         region                  = "eu-west-1"
         profile                 = "tf_admin"
         shared_credentials_file = "./creds"
-        dynamodb_table          = "terraform_state"
+        dynamodb_table          = "terraform-state"
     }
 }
 EOF

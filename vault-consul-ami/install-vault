@@ -10,6 +10,8 @@ set -e
 readonly DEFAULT_INSTALL_PATH="/opt/vault"
 readonly DEFAULT_VAULT_USER="vault"
 
+readonly DOWNLOAD_PACKAGE_PATH="/tmp/vault.zip"
+
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SYSTEM_BIN_DIR="/usr/local/bin"
 
@@ -26,47 +28,84 @@ function print_usage {
   echo
   echo "Options:"
   echo
-  echo -e "  --version\t\tThe version of Vault to install. Required."
+  echo -e "  --version\t\tThe version of Vault to install. Optional if download-url is provided."
+  echo -e "  --download-url\t\tUrl to exact Vault package to be installed. Optional if version is provided."
   echo -e "  --path\t\tThe path where Vault should be installed. Optional. Default: $DEFAULT_INSTALL_PATH."
   echo -e "  --user\t\tThe user who will own the Vault install directories. Optional. Default: $DEFAULT_VAULT_USER."
-  echo -e "  --url\t\t\tAlternative URL to download Vault from. Optional."
   echo
   echo "Example:"
   echo
-  echo "  install-vault --version 0.7.0"
+  echo "  install-vault --version 0.10.4"
 }
 
 function log {
-  local readonly level="$1"
-  local readonly message="$2"
-  local readonly timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  local -r level="$1"
+  local -r message="$2"
+  local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
   >&2 echo -e "${timestamp} [${level}] [$SCRIPT_NAME] ${message}"
 }
 
 function log_info {
-  local readonly message="$1"
+  local -r message="$1"
   log "INFO" "$message"
 }
 
 function log_warn {
-  local readonly message="$1"
+  local -r message="$1"
   log "WARN" "$message"
 }
 
 function log_error {
-  local readonly message="$1"
+  local -r message="$1"
   log "ERROR" "$message"
 }
 
 function assert_not_empty {
-  local readonly arg_name="$1"
-  local readonly arg_value="$2"
+  local -r arg_name="$1"
+  local -r arg_value="$2"
 
   if [[ -z "$arg_value" ]]; then
     log_error "The value for '$arg_name' cannot be empty"
     print_usage
     exit 1
   fi
+}
+
+function assert_either_or {
+  local -r arg1_name="$1"
+  local -r arg1_value="$2"
+  local -r arg2_name="$3"
+  local -r arg2_value="$4"
+
+  if [[ -z "$arg1_value" && -z "$arg2_value" ]]; then
+    log_error "Either the value for '$arg1_name' or '$arg2_name' must be passed, both cannot be empty"
+    print_usage
+    exit 1
+  fi
+}
+
+# A retry function that attempts to run a command a number of times and returns the output
+function retry {
+  local -r cmd="$1"
+  local -r description="$2"
+
+  for i in $(seq 1 5); do
+    log_info "$description"
+
+    # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
+    # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
+    output=$(eval "$cmd") && exit_status=0 || exit_status=$?
+    log_info "$output"
+    if [[ $exit_status -eq 0 ]]; then
+      echo "$output"
+      return
+    fi
+    log_warn "$description failed. Will sleep for 10 seconds and try again."
+    sleep 10
+  done;
+
+  log_error "$description failed after 5 attempts."
+  exit $exit_status
 }
 
 # Install steps are based on: http://unix.stackexchange.com/a/291098/215969
@@ -139,7 +178,7 @@ function install_dependencies {
     install_supervisord_debian
   elif $(has_yum); then
     sudo yum update -y
-    sudo yum install -y aws curl unzip jq
+    sudo yum install -y awscli curl unzip jq
     install_supervisord_amazon_linux
   else
     log_error "Could not find apt-get or yum. Cannot install dependencies on this OS."
@@ -148,12 +187,12 @@ function install_dependencies {
 }
 
 function user_exists {
-  local readonly username="$1"
+  local -r username="$1"
   id "$username" >/dev/null 2>&1
 }
 
 function create_vault_user {
-  local readonly username="$1"
+  local -r username="$1"
 
   if $(user_exists "$username"); then
     echo "User $username already exists. Will not create again."
@@ -164,8 +203,8 @@ function create_vault_user {
 }
 
 function create_vault_install_paths {
-  local readonly path="$1"
-  local readonly username="$2"
+  local -r path="$1"
+  local -r username="$2"
 
   log_info "Creating install dirs for Vault at $path"
   sudo mkdir -p "$path"
@@ -174,6 +213,7 @@ function create_vault_install_paths {
   sudo mkdir -p "$path/data"
   sudo mkdir -p "$path/log"
   sudo mkdir -p "$path/tls"
+  sudo mkdir -p "$path/scripts"
   sudo chmod 755 "$path"
   sudo chmod 755 "$path/bin"
 
@@ -181,29 +221,35 @@ function create_vault_install_paths {
   sudo chown -R "$username:$username" "$path"
 }
 
-function install_binaries {
-  local readonly version="$1"
-  local readonly path="$2"
-  local readonly username="$3"
-  local readonly custom_url="$4"
+function fetch_binary {
+  local -r version="$1"
+  local download_url="$2"
 
-  local readonly default_url="https://releases.hashicorp.com/vault/${version}/vault_${version}_linux_amd64.zip"
-  local readonly url=${custom_url:=$default_url}
-  local readonly download_path="/tmp/vault_${version}_linux_amd64.zip"
-  local readonly bin_dir="$path/bin"
-  local readonly vault_dest_path="$bin_dir/vault"
-  local readonly run_vault_dest_path="$bin_dir/run-vault"
+  if [[ -z "$download_url" && -n "$version" ]];  then
+    download_url="https://releases.hashicorp.com/vault/${version}/vault_${version}_linux_amd64.zip"
+  fi
 
-  log_info "Downloading Vault $version from $url to $download_path"
-  curl -o "$download_path" "$url"
-  unzip -d /tmp "$download_path"
+  retry \
+    "curl -o '$DOWNLOAD_PACKAGE_PATH' '$download_url' --location --silent --fail --show-error" \
+    "Downloading Vault to $DOWNLOAD_PACKAGE_PATH"
+}
+
+function install_binary {
+  local -r install_path="$1"
+  local -r username="$2"
+
+  local -r bin_dir="$install_path/bin"
+  local -r vault_dest_path="$bin_dir/vault"
+  local -r run_vault_dest_path="$bin_dir/run-vault"
+
+  unzip -d /tmp "$DOWNLOAD_PACKAGE_PATH"
 
   log_info "Moving Vault binary to $vault_dest_path"
   sudo mv "/tmp/vault" "$vault_dest_path"
   sudo chown "$username:$username" "$vault_dest_path"
   sudo chmod a+x "$vault_dest_path"
 
-  local readonly symlink_path="$SYSTEM_BIN_DIR/vault"
+  local -r symlink_path="$SYSTEM_BIN_DIR/vault"
   if [[ -f "$symlink_path" ]]; then
     log_info "Symlink $symlink_path already exists. Will not add again."
   else
@@ -212,7 +258,7 @@ function install_binaries {
   fi
 
   log_info "Copying Vault run script to $run_vault_dest_path"
-  sudo cp "$SCRIPT_DIR/run-vault" "$run_vault_dest_path"
+  sudo cp "$SCRIPT_DIR/../run-vault/run-vault" "$run_vault_dest_path"
   sudo chown "$username:$username" "$run_vault_dest_path"
   sudo chmod a+x "$run_vault_dest_path"
 }
@@ -225,9 +271,9 @@ function configure_mlock {
 
 function install {
   local version=""
+  local download_url=""
   local path="$DEFAULT_INSTALL_PATH"
   local user="$DEFAULT_VAULT_USER"
-  local url=""
 
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -237,16 +283,16 @@ function install {
         version="$2"
         shift
         ;;
+      --download-url)
+        download_url="$2"
+        shift
+        ;;
       --path)
         path="$2"
         shift
         ;;
       --user)
         user="$2"
-        shift
-        ;;
-      --url)
-        url="$2"
         shift
         ;;
       --help)
@@ -263,7 +309,7 @@ function install {
     shift
   done
 
-  assert_not_empty "--version" "$version"
+  assert_either_or "--version" "$version" "--download-url" "$download_url"
   assert_not_empty "--path" "$path"
   assert_not_empty "--user" "$user"
 
@@ -272,10 +318,17 @@ function install {
   install_dependencies
   create_vault_user "$user"
   create_vault_install_paths "$path" "$user"
-  install_binaries "$version" "$path" "$user" "$url"
+  fetch_binary "$version" "$download_url"
+  install_binary "$path" "$user"
   configure_mlock
 
-  log_info "Vault install complete!"
+
+  if command -v vault; then
+    log_info "Vault install complete!"
+  else
+    log_info "Could not find vault command. Aborting.";
+    exit 1;
+  fi
 }
 
 install "$@"
