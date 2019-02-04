@@ -26,6 +26,6 @@ export AWS_PROFILE=tf_admin && kops create cluster \
   --topology=private \
   --bastion="true" \
   --kubernetes-version=v1.11.6 \
-  --ssh-public-key=./keys/k8s/k8s_rsa.pub \
+  --ssh-public-key=./keys/k8s/kubernetes_rsa.pub \
   --out=. \
   --target=terraform
