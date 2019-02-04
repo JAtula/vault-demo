@@ -77,6 +77,13 @@ data "aws_subnet_ids" "private_subnet_ids" {
 output "private_subnet_ids" {
   value = "${data.aws_subnet_ids.private_subnet_ids.ids}"
 }
+data "aws_subnet_ids" "all_subnets" {
+  vpc_id = "${aws_vpc.main.id}"
+}
+
+output "all_subnet_ids" {
+  value = "${data.aws_subnet_ids.all_subnets.ids}"
+}
 
 
 
