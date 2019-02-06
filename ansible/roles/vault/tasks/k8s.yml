@@ -1,0 +1,39 @@
+# Default lease time is 30 days, which is pretty short. Increased it to 1 year. 
+# Note, this is the default lease time and doesn't affect per certificate lease times.
+- name: Enable K8S auth handler
+  shell: |
+    vault auth enable kubernetes
+  args:
+    executable: /bin/bash
+  tags:
+    - vault
+    - k8s
+    - enable_k8s_auth
+
+- name: Write K8S config
+  shell: |
+    vault write auth/kubernetes/config \
+      token_reviewer_jwt="{{ item.k8s_sa_user_token }}" \
+      kubernetes_host="{{ item.k8s_host }}" \
+      kubernetes_ca_cert="{{ item.k8s_ca_cert }}"
+  args:
+    executable: /bin/bash
+  with_items: "{{ k8s }}"
+  tags:
+    - vault
+    - k8s
+    - write_k8s_config
+
+- name: Write K8S role
+  shell: |
+    vault write auth/kubernetes/role/k8s-admin \
+        bound_service_account_names=vault-handler \
+        bound_service_account_namespaces="*" \
+        policies=k8s-admin \
+        ttl=3h
+  args:
+    executable: /bin/bash
+  tags:
+    - vault
+    - k8s
+    - write_k8s_role

@@ -3,4 +3,7 @@ creds
 **/*_rsa
 **/*.key
 **/*.ovpn
+**/.DS_Store
+**/vault_pass
+**/*retry
 key_shares

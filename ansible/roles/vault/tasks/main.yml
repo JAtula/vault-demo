@@ -1,0 +1,14 @@
+---
+# tasks file for vault
+- name: Unseal Vault
+  include: unseal.yml
+
+- name: Configure Vault Users
+  include: users.yml
+
+- name: Configure Vault Policies
+  include: policies.yml
+
+- name: Configure K8S
+  include: k8s.yml
+  

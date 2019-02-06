@@ -1,0 +1,6 @@
+---
+# defaults file for vault
+service_users:
+- name: k8s-admin
+  policy: k8s-admin
+  period: 72h

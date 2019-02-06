@@ -1,0 +1,33 @@
+- name: Enable userpass auth method
+  shell: vault auth enable userpass
+  args:
+    executable: /bin/bash
+  tags:
+    - vault
+    - users
+    - enable_auth
+
+- name: Add admin users
+  shell: |
+    vault write auth/userpass/users/{{ item.name }} \
+    password={{ item.password }} \
+    policies=admins
+  args:
+    executable: /bin/bash
+  tags:
+    - vault
+    - users
+    - admin_users
+  loop: "{{ users }}"
+
+- name: Add service users
+  shell: |
+    vault token create -policy="{{ item.policy }}" -period="{{ item.period }}" -display-name="{{ item.name }}" \
+  args:
+    executable: /bin/bash
+  loop: "{{ service_users }}"
+  register: out
+  tags:
+    - vault
+    - users
+    - service_users

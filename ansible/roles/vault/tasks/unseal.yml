@@ -1,0 +1,11 @@
+- name: Unseal Vault
+  run_once: true
+  shell: |
+    vault operator unseal {{ unseal_key_1 }}
+    vault operator unseal {{ unseal_key_2 }}
+    vault operator unseal {{ unseal_key_3 }}
+  args:
+    executable: /bin/bash
+  tags:
+    - vault
+    - unseal_vault

@@ -1,0 +1,16 @@
+[relay]
+bastion ansible_user=admin
+
+[vault-node-1]
+90.80.1.14
+
+[vault-node-2]
+90.80.2.154
+
+[vault-node-3]
+90.80.3.233
+
+[vault-nodes:children]
+vault-node-1
+vault-node-2
+vault-node-3

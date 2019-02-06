@@ -1,0 +1,11 @@
+---
+- name: configure vault
+  hosts: vault-nodes
+  gather_facts: yes
+  environment:
+    VAULT_ADDR: https://127.0.0.1:8200
+    VAULT_TOKEN: "{{ initial_root_token }}"
+  roles:
+    - vault
+  tags:
+    - vault

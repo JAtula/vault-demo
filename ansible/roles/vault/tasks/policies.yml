@@ -1,0 +1,17 @@
+- name: Copy policies
+  copy: src={{item.filename}} dest=/tmp/{{item.filename}}
+  loop: "{{ policies }}"
+  tags:
+    - vault
+    - create_policies
+    - copy_policies
+
+- name: Create policies
+  shell: vault policy write {{ item.name }} /tmp/{{ item.filename }}
+  args:
+    executable: /bin/bash
+  loop: "{{ policies }}"
+  tags:
+    - vault
+    - login
+    - create_policies
