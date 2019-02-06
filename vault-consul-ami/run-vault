@@ -36,11 +36,12 @@ function print_usage {
   echo -e "  --enable-s3-backend\tIf this flag is set, an S3 backend will be enabled in addition to the HA Consul backend. Default is false."
   echo -e "  --s3-bucket\tSpecifies the S3 bucket to use to store Vault data. Only used if '--enable-s3-backend' is set."
   echo -e "  --s3-bucket-region\tSpecifies the AWS region where '--s3-bucket' lives. Only used if '--enable-s3-backend' is set."
+  echo
+  echo "Optional Arguments for enabling the AWS KMS seal (Vault Enterprise or 1.0 and above):"
+  echo
   echo -e "  --enable-dynamo-backend\tIf this flag is set, DynamoDB will be enabled as the backend storage (HA)"
   echo -e "  --dynamo-region\tSpecifies the AWS region where --dynamo-table lives.  Only used if '--enable-dynamo-backend is on'"
   echo -e "  --dynamo--table\tSpecifies the DynamoDB table to use for HA Storage.  Only used if '--enable-dynamo-backend is on'"
-  echo
-  echo "Optional Arguments for enabling the AWS KMS seal (Vault Enterprise or 1.0 and above):"
   echo
   echo -e "  --enable-auto-unseal\tIf this flag is set, enable the AWS KMS Auto-unseal feature. Default is false."
   echo -e "  --auto-unseal-kms-key-id\tThe key id of the AWS KMS key to be used for encryption and decryption. Required if --enable-auto-unseal is enabled."
@@ -147,13 +148,13 @@ function generate_vault_config {
   local -r enable_s3_backend="$8"
   local -r s3_bucket="$9"
   local -r s3_bucket_region="${10}"
-  local readonly enable_dynamo_backend="${11}"
-  local readonly dynamo_region="${12}"
-  local readonly dynamo_table="${13}"
   local -r enable_auto_unseal="${11}"
   local -r auto_unseal_kms_key_id="${12}"
   local -r auto_unseal_kms_key_region="${13}"
   local -r auto_unseal_endpoint="${14}"
+  local readonly enable_dynamo_backend="${15}"
+  local readonly dynamo_region="${16}"
+  local readonly dynamo_table="${17}"
   local -r config_path="$config_dir/$VAULT_CONFIG_FILE"
 
   local instance_ip_address
@@ -194,10 +195,9 @@ listener "tcp" {
 EOF
 )
 
-  local consul_storage_type="storage"
+  local consul_storage_type=""
   local dynamodb_storage_type="storage"
   local s3_config=""
-  local consul_storage=""
   local vault_storage=""
 
   if [[ "$enable_s3_backend" == "true" ]]; then
@@ -208,7 +208,6 @@ storage "s3" {
 }\n
 EOF
 )
-    consul_storage_type="ha_storage"
     dynamodb_storage_type="ha_storage"
   fi
 
@@ -305,13 +304,13 @@ function run {
   local enable_s3_backend="false"
   local s3_bucket=""
   local s3_bucket_region=""
-  local enable_dynamo_backend="false"
-  local dynamo_region=""
-  local dynamo_table=""
   local enable_auto_unseal="false"
   local auto_unseal_kms_key_id=""
   local auto_unseal_kms_key_region=""
   local auto_unseal_endpoint=""
+  local enable_dynamo_backend="false"
+  local dynamo_region=""
+  local dynamo_table=""
   local all_args=()
 
   while [[ $# > 0 ]]; do
@@ -380,19 +379,8 @@ function run {
         s3_bucket_region="$2"
         shift
         ;;
-      --enable-dynamo-backend)
-        enable_dynamo_backend="true"
-        ;;
-      --dynamo-region)
-        dynamo_region="$2"
-        shift
-        ;;
-      --dynamo-table)
-        dynamo_table="$2"
-        shift
-        ;;
       --enable-auto-unseal)
-        enable_auto_unseal="false"
+        enable_auto_unseal="true"
         ;;
       --auto-unseal-kms-key-id)
         auto_unseal_kms_key_id="$2"
@@ -409,6 +397,17 @@ function run {
       --help)
         print_usage
         exit
+        ;;
+      --enable-dynamo-backend)
+        enable_dynamo_backend="true"
+        ;;
+      --dynamo-region)
+        dynamo_region="$2"
+        shift
+        ;;
+      --dynamo-table)
+        dynamo_table="$2"
+        shift
         ;;
       *)
         log_error "Unrecognized argument: $key"
@@ -482,13 +481,13 @@ function run {
       "$enable_s3_backend" \
       "$s3_bucket" \
       "$s3_bucket_region" \
-      "$enable_dynamo_backend" \
-      "$dynamo_region" \
-      "$dynamo_table" \
       "$enable_auto_unseal" \
       "$auto_unseal_kms_key_id" \
       "$auto_unseal_kms_key_region" \
-      "$auto_unseal_endpoint"
+      "$auto_unseal_endpoint" \
+      "$enable_dynamo_backend" \
+      "$dynamo_region" \
+      "$dynamo_table" 
   fi
 
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"

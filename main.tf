@@ -15,7 +15,7 @@ terraform {
         dynamodb_table          = "terraform-state"
     }
 }
-
+data "aws_region" "current" {}
 data "aws_s3_bucket" "state-bucket" {
   bucket = "terraform-state-eyaitethoenu"
 }

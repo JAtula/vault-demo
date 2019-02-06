@@ -1,14 +1,3 @@
-data "aws_vpc" "default" {
-  id      = "vpc-4ba6462d"
-}
-
-data "aws_subnet_ids" "default" {
-  vpc_id = "${data.aws_vpc.default.id}"
-  tags = {
-    SubnetType = "Utility"
-  }
-}
-
 # ---------------------------------------------------------------------------------------------------------------------
 # THE USER DATA SCRIPT THAT WILL RUN ON EACH VAULT SERVER WHEN IT'S BOOTING
 # This script will configure and start Vault
@@ -19,30 +8,11 @@ data "template_file" "user_data_vault_cluster" {
 
   vars {
     aws_region               = "${data.aws_region.current.name}"
-    s3_bucket_name           = "sv-vault-storage"
-    dynamo_table_name        = "vault-ha-table"
+    s3_bucket_name           = "useless-mobi-vault-storage"
+    dynamo_table_name        = "${aws_dynamodb_table.vault-ha-table.name}"
     consul_cluster_tag_key   = "Name"
     consul_cluster_tag_value = "vault-ha-cluster"
   }
-}
-
-
-terraform {
-  required_version = ">= 0.9.3"
-}
-module "tls-keys" {
-  source = "modules/private-tls-cert"
-  ca_public_key_file_path = "keys/vault/ca.crt"
-  public_key_file_path    = "keys/vault/vault.crt"
-  private_key_file_path   = "keys/vault/vault.key"
-  owner                   = "jatula"
-  organization_name       = "Super Ops Oy"
-  ca_common_name          = "Vault Root CA"
-  common_name             = "vault"
-  dns_names               = ["vault.service.consul", "vault.demo.internal"]
-  ip_addresses            = ["127.0.0.1"]
-  validity_period_hours   = 87600
-  private_key_rsa_bits    = 4096
 }
 
 
@@ -56,25 +26,25 @@ module "vault_cluster" {
   # source = "github.com/hashicorp/terraform-aws-consul.git/modules/vault-cluster?ref=v0.0.1"
   source = "modules/vault-cluster"
 
-  cluster_name  = "sv-vault-cluster"
+  cluster_name  = "vault-cluster"
   cluster_size  = 3
   instance_type = "t3.micro"
 
-  ami_id    = "ami-02acf1400310abc67"
+  ami_id    = "ami-0c880966dce2a3643"
   user_data = "${data.template_file.user_data_vault_cluster.rendered}"
 
   enable_s3_backend       = true
-  s3_bucket_name          = "sv-vault-storage"
+  s3_bucket_name          = "useless-mobi-vault-storage"
   force_destroy_s3_bucket = false
 
-  vpc_id     = "${data.aws_vpc.default.id}"
-  subnet_ids = "${data.aws_subnet_ids.default.ids}"
+  vpc_id     = "${aws_vpc.main.id}"
+  subnet_ids = "${data.aws_subnet_ids.private_subnet_ids.ids}"
 
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
-  allowed_ssh_cidr_blocks              = ["52.210.141.51/32","89.42.43.78/32", "10.156.4.0/22"]
-  allowed_inbound_cidr_blocks          = ["10.156.0.0/20"]
+  allowed_ssh_cidr_blocks              = ["90.80.6.0/24"]
+  allowed_inbound_cidr_blocks          = ["90.80.0.0/21"]
   allowed_inbound_security_group_ids   = []
   allowed_inbound_security_group_count = 0
   ssh_key_name                         = "${aws_key_pair.vault_key.key_name}"

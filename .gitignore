@@ -1,3 +1,6 @@
 creds
 .terraform
 **/*_rsa
+**/*.key
+**/*.ovpn
+key_shares

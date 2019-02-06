@@ -15,7 +15,7 @@ resource "aws_vpc" "main" {
   enable_dns_support = true
 
   tags {
-    "kubernetes.io/cluster/vault-demo.cloud.int" = "shared"
+    "kubernetes.io/cluster/vault-demo.useless.mobi" = "shared"
   }
 }
 
@@ -40,7 +40,7 @@ resource "aws_subnet" "private" {
   availability_zone = "${lookup(var.availability_zones, count.index)}"
 
   tags = {
-    "kubernetes.io/cluster/vault-demo.cloud.int" = "shared"
+    "kubernetes.io/cluster/vault-demo.useless.mobi" = "shared"
     "kubernetes.io/role/internal-elb"      = "1"
     "SubnetType"                           = "Private"
   }
@@ -54,7 +54,7 @@ resource "aws_subnet" "utility" {
   availability_zone = "${lookup(var.availability_zones, count.index)}"
 
   tags = {
-    "kubernetes.io/cluster/vault-demo.cloud.int" = "shared"
+    "kubernetes.io/cluster/vault-demo.useless.mobi" = "shared"
     "kubernetes.io/role/elb"               = "1"
     "SubnetType"                           = "Utility"
   }
