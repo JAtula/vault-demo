@@ -13,6 +13,10 @@ resource "aws_vpc" "main" {
   instance_tenancy = "default"
   enable_dns_hostnames = true
   enable_dns_support = true
+
+  tags {
+    "kubernetes.io/cluster/vault-demo.cloud.int" = "shared"
+  }
 }
 
 resource "aws_internet_gateway" "gw" {
@@ -36,8 +40,9 @@ resource "aws_subnet" "private" {
   availability_zone = "${lookup(var.availability_zones, count.index)}"
 
   tags = {
-    SubnetType = "Private"
-    Name = "private-${lookup(var.availability_zones, count.index)}"
+    "kubernetes.io/cluster/vault-demo.cloud.int" = "shared"
+    "kubernetes.io/role/internal-elb"      = "1"
+    "SubnetType"                           = "Private"
   }
 }
 
@@ -49,8 +54,9 @@ resource "aws_subnet" "utility" {
   availability_zone = "${lookup(var.availability_zones, count.index)}"
 
   tags = {
-    SubnetType = "Utility"
-    Name = "utility-${lookup(var.availability_zones, count.index)}"
+    "kubernetes.io/cluster/vault-demo.cloud.int" = "shared"
+    "kubernetes.io/role/elb"               = "1"
+    "SubnetType"                           = "Utility"
   }
 }
 
@@ -78,6 +84,7 @@ output "private_subnet_ids" {
   value = "${data.aws_subnet_ids.private_subnet_ids.ids}"
 }
 data "aws_subnet_ids" "all_subnets" {
+  depends_on = ["aws_subnet.private", "aws_subnet.utility"]
   vpc_id = "${aws_vpc.main.id}"
 }
 
@@ -95,7 +102,7 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "nat-gw" {
   count = 3
   allocation_id = "${element(aws_eip.nat.*.id, count.index)}"
-  subnet_id     = "${element(aws_subnet.private.*.id, count.index)}"
+  subnet_id     = "${element(aws_subnet.utility.*.id, count.index)}"
 
   tags = {
     AvailabilityZone = "${lookup(var.availability_zones, count.index)}"
@@ -109,7 +116,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${element(aws_nat_gateway.nat-gw.*.id, count.index)}"
+    nat_gateway_id = "${element(aws_nat_gateway.nat-gw.*.id, count.index)}"
   }
 
   tags = {

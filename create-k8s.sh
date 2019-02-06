@@ -1,20 +1,23 @@
 #!/bin/bash
 
+private_subnets=$(terraform output -json private_subnet_ids | jq -r .value[] | tr '\n' ',' | sed 's/\(.*\),/\1/')
+utility_subnets=$(terraform output -json utility_subnet_ids | jq -r .value[] | tr '\n' ',' | sed 's/\(.*\),/\1/')
 
-export AWS_PROFILE=tf_admin && kops create cluster \
+export AWS_PROFILE=default && kops create cluster \
   --cloud=aws \
-  --cloud-labels="environment=dev,project=vault-demo,kubernetes.io/cluster/vault-demo.mecloud.online=shared" \
-  --name=vault-demo.mecloud.online \
-  --dns-zone=mecloud.online \
+  --cloud-labels="environment=dev,project=vault-demo,kubernetes.io/cluster/vault-demo.useless.mobi=shared" \
+  --name=vault-demo.useless.mobi \
+  --dns-zone=useless.mobi \
   --authorization=rbac \
-  --state=s3://terraform-state-zeepupualeer \
+  --state="s3://$(terraform output state_bucket_name | tr -d '\n')" \
   --api-loadbalancer-type=public \
   --node-count=3 \
   --node-tenancy=default \
-  --vpc=vpc-043b3254f177ba590 \
+  --vpc="$(terraform output vpc_id | tr -d '\n')" \
   --network-cidr=90.80.0.0/21 \
-  --subnets="subnet-004f1a62b1f60a0c1,subnet-00cc5bf7d76c69ac2,subnet-066ba15732a54bb9c" \
-  --utility-subnets="subnet-0837038830e4c17e0,subnet-0bac9655b5022e26d,subnet-0a20b72ddb45221ac" \
+  --subnets="$private_subnets" \
+  --utility-subnets="$utility_subnets" \
+  --disable-subnet-tags \
   --encrypt-etcd-storage \
   --node-size=t2.medium \
   --master-size=t2.medium \
@@ -28,4 +31,5 @@ export AWS_PROFILE=tf_admin && kops create cluster \
   --kubernetes-version=v1.11.6 \
   --ssh-public-key=./keys/k8s/kubernetes_rsa.pub \
   --out=. \
-  --target=terraform
+  --target=terraform \
+  -v 0

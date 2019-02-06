@@ -46,7 +46,7 @@
       ],
       "Condition": {
         "StringEquals": {
-          "ec2:ResourceTag/KubernetesCluster": "vault-demo.mecloud.online"
+          "ec2:ResourceTag/KubernetesCluster": "vault-demo.useless.mobi"
         }
       }
     },
@@ -73,7 +73,7 @@
       ],
       "Condition": {
         "StringEquals": {
-          "autoscaling:ResourceTag/KubernetesCluster": "vault-demo.mecloud.online"
+          "autoscaling:ResourceTag/KubernetesCluster": "vault-demo.useless.mobi"
         }
       }
     },
@@ -142,7 +142,7 @@
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::terraform-state-zeepupualeer"
+        "arn:aws:s3:::terraform-state-eyaitethoenu"
       ]
     },
     {
@@ -150,7 +150,7 @@
       "Action": [
         "s3:Get*"
       ],
-      "Resource": "arn:aws:s3:::terraform-state-zeepupualeer/vault-demo.mecloud.online/*"
+      "Resource": "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/*"
     },
     {
       "Effect": "Allow",
@@ -160,7 +160,7 @@
         "route53:GetHostedZone"
       ],
       "Resource": [
-        "arn:aws:route53:::hostedzone/Z33FE3WYQVPES7"
+        "arn:aws:route53:::hostedzone/Z1ID1FNQKMNYW4"
       ]
     },
     {

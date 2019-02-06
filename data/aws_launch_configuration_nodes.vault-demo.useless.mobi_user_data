@@ -193,14 +193,14 @@ Assets:
 - c3f7fbab5ba39e3ec20b32f0e7bcad6cc0704792@https://storage.googleapis.com/kubernetes-release/release/v1.11.6/bin/linux/amd64/kubectl
 - d595d3ded6499a64e8dac02466e2f5f2ce257c9f@https://storage.googleapis.com/kubernetes-release/network-plugins/cni-plugins-amd64-v0.6.0.tgz
 - b16b5367e05bad082f416f786c7f8813f7794630@https://kubeupv2.s3.amazonaws.com/kops/1.11.0/linux/amd64/utils.tar.gz
-ClusterName: vault-demo.mecloud.online
-ConfigBase: s3://terraform-state-zeepupualeer/vault-demo.mecloud.online
+ClusterName: vault-demo.useless.mobi
+ConfigBase: s3://terraform-state-eyaitethoenu/vault-demo.useless.mobi
 InstanceGroupName: nodes
 Tags:
 - _automatic_upgrades
 - _aws
 channels:
-- s3://terraform-state-zeepupualeer/vault-demo.mecloud.online/addons/bootstrap-channel.yaml
+- s3://terraform-state-eyaitethoenu/vault-demo.useless.mobi/addons/bootstrap-channel.yaml
 protokubeImage:
   hash: 725c2de47755544a9aa349e27ed9900d195f0ceb
   name: protokube:1.11.0
