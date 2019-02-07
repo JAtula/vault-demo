@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: hyperspace
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 9393
+  selector:
+    app: hyperspace
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: hyperspace
+  name: hyperspace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hyperspace
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: hyperspace
+    spec:
+      serviceAccountName: vault-handler
+      initContainers:
+        - name: vault-init
+          image: everpeace/curl-jq
+          command:
+            - "sh"
+            - "-c"
+            - >
+              KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token);
+              curl -k --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "k8s-admin"}' https://vault.useless.mobi:8200/v1/auth/kubernetes/login | jq -j '.auth.client_token' > /etc/vault/token;
+              X_VAULT_TOKEN=$(cat /etc/vault/token);
+              curl -k --header "X-Vault-Token: $X_VAULT_TOKEN" https://vault.useless.mobi:8200/v1/secret/dev/hyperspace > /opt/secrets/secrets.json;
+              for i in $(cat /opt/secrets/secrets.json | jq -r '.data | keys[]'); do
+                echo "Export env: $i"
+                echo "export $(echo $i | awk '{print toupper($0)}')=$(cat /opt/secrets/secrets.json | jq -r .data.$i)" >> /opt/secrets/.env
+              done
+          volumeMounts:
+            - name: app-creds
+              mountPath: /opt/secrets
+            - name: vault-token
+              mountPath: /etc/vault
+      containers:
+      - image: 772545774134.dkr.ecr.eu-west-1.amazonaws.com/hyperspace
+        name: hyperspace
+        ports:
+        - containerPort: 9393
+        resources: {}
+        volumeMounts:
+        - name: app-creds
+          mountPath: /opt/secrets
+      volumes:
+      - name: app-creds
+        emptyDir: {}
+      - name: vault-token
+        emptyDir: {}
+status: {}
