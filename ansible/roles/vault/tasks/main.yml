@@ -11,4 +11,7 @@
 
 - name: Configure K8S
   include: k8s.yml
+
+- name: Write key-value secrets
+  include: secrets.yml
   

@@ -2,13 +2,13 @@
 bastion ansible_user=admin
 
 [vault-node-1]
-90.80.1.14
+90.80.1.176
 
 [vault-node-2]
-90.80.2.154
+90.80.2.233
 
 [vault-node-3]
-90.80.3.233
+90.80.3.138
 
 [vault-nodes:children]
 vault-node-1

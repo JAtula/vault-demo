@@ -19,7 +19,7 @@
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::terraform-state-eyaitethoenu"
+        "arn:aws:s3:::terraform-state-nahghifiukae"
       ]
     },
     {
@@ -28,15 +28,15 @@
         "s3:Get*"
       ],
       "Resource": [
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/addons/*",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/cluster.spec",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/config",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/instancegroup/*",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/pki/issued/*",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/pki/private/kube-proxy/*",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/pki/private/kubelet/*",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/pki/ssh/*",
-        "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/secrets/dockerconfig"
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/addons/*",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/cluster.spec",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/config",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/instancegroup/*",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/pki/issued/*",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/pki/private/kube-proxy/*",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/pki/private/kubelet/*",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/pki/ssh/*",
+        "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/secrets/dockerconfig"
       ]
     },
     {

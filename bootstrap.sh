@@ -33,13 +33,15 @@ terraform {
     }
 }
 
+data "aws_region" "current" {}
 data "aws_s3_bucket" "state-bucket" {
-  bucket = "$bucketName"
+    bucket = "$bucketName"
 }
 
 output "state_bucket_name" {
-  value = "${data.aws_s3_bucket.state-bucket.id}"
+    value = "${data.aws_s3_bucket.state-bucket.id}"
 }
+
 EOF
 
 fi

@@ -10,18 +10,18 @@ locals = {
   masters_role_name             = "${aws_iam_role.masters-vault-demo-useless-mobi.name}"
   node_autoscaling_group_ids    = ["${aws_autoscaling_group.nodes-vault-demo-useless-mobi.id}"]
   node_security_group_ids       = ["${aws_security_group.nodes-vault-demo-useless-mobi.id}"]
-  node_subnet_ids               = ["subnet-06023563a7762b748", "subnet-0dd0974ad2126d068", "subnet-0fc2244bedebebdac"]
+  node_subnet_ids               = ["subnet-06b1d6094b71fed3d", "subnet-0a2497254954840d4", "subnet-0f34944d2f036c22b"]
   nodes_role_arn                = "${aws_iam_role.nodes-vault-demo-useless-mobi.arn}"
   nodes_role_name               = "${aws_iam_role.nodes-vault-demo-useless-mobi.name}"
   region                        = "eu-west-1"
-  subnet_eu-west-1a_id          = "subnet-0fc2244bedebebdac"
-  subnet_eu-west-1b_id          = "subnet-0dd0974ad2126d068"
-  subnet_eu-west-1c_id          = "subnet-06023563a7762b748"
-  subnet_ids                    = ["subnet-00c58d3cf84e4f1a2", "subnet-026870ae093b2ca77", "subnet-06023563a7762b748", "subnet-0c2996ef41530ab62", "subnet-0dd0974ad2126d068", "subnet-0fc2244bedebebdac"]
-  subnet_utility-eu-west-1a_id  = "subnet-026870ae093b2ca77"
-  subnet_utility-eu-west-1b_id  = "subnet-00c58d3cf84e4f1a2"
-  subnet_utility-eu-west-1c_id  = "subnet-0c2996ef41530ab62"
-  vpc_id                        = "vpc-0e0622f03704389b4"
+  subnet_eu-west-1a_id          = "subnet-0f34944d2f036c22b"
+  subnet_eu-west-1b_id          = "subnet-06b1d6094b71fed3d"
+  subnet_eu-west-1c_id          = "subnet-0a2497254954840d4"
+  subnet_ids                    = ["subnet-01f0757b77ef3d4e1", "subnet-0543b5d10bd887a5b", "subnet-06b1d6094b71fed3d", "subnet-093e9b3ab369ce081", "subnet-0a2497254954840d4", "subnet-0f34944d2f036c22b"]
+  subnet_utility-eu-west-1a_id  = "subnet-093e9b3ab369ce081"
+  subnet_utility-eu-west-1b_id  = "subnet-01f0757b77ef3d4e1"
+  subnet_utility-eu-west-1c_id  = "subnet-0543b5d10bd887a5b"
+  vpc_id                        = "vpc-07c93b78357bb8450"
 }
 
 output "bastion_autoscaling_group_ids" {
@@ -81,39 +81,39 @@ output "region" {
   value = "eu-west-1"
 }
 # output "node_subnet_ids" {
-#   value = ["subnet-06023563a7762b748", "subnet-0dd0974ad2126d068", "subnet-0fc2244bedebebdac"]
+#   value = ["subnet-06b1d6094b71fed3d", "subnet-0a2497254954840d4", "subnet-0f34944d2f036c22b"]
 # }
 
 # output "subnet_eu-west-1a_id" {
-#   value = "subnet-0fc2244bedebebdac"
+#   value = "subnet-0f34944d2f036c22b"
 # }
 
 # output "subnet_eu-west-1b_id" {
-#   value = "subnet-0dd0974ad2126d068"
+#   value = "subnet-06b1d6094b71fed3d"
 # }
 
 # output "subnet_eu-west-1c_id" {
-#   value = "subnet-06023563a7762b748"
+#   value = "subnet-0a2497254954840d4"
 # }
 
 # output "subnet_ids" {
-#   value = ["subnet-00c58d3cf84e4f1a2", "subnet-026870ae093b2ca77", "subnet-06023563a7762b748", "subnet-0c2996ef41530ab62", "subnet-0dd0974ad2126d068", "subnet-0fc2244bedebebdac"]
+#   value = ["subnet-01f0757b77ef3d4e1", "subnet-0543b5d10bd887a5b", "subnet-06b1d6094b71fed3d", "subnet-093e9b3ab369ce081", "subnet-0a2497254954840d4", "subnet-0f34944d2f036c22b"]
 # }
 
 # output "subnet_utility-eu-west-1a_id" {
-#   value = "subnet-026870ae093b2ca77"
+#   value = "subnet-093e9b3ab369ce081"
 # }
 
 # output "subnet_utility-eu-west-1b_id" {
-#   value = "subnet-00c58d3cf84e4f1a2"
+#   value = "subnet-01f0757b77ef3d4e1"
 # }
 
 # output "subnet_utility-eu-west-1c_id" {
-#   value = "subnet-0c2996ef41530ab62"
+#   value = "subnet-0543b5d10bd887a5b"
 # }
 
 # output "vpc_id" {
-#   value = "vpc-0e0622f03704389b4"
+#   value = "vpc-07c93b78357bb8450"
 # }
 
 # provider "aws" {
@@ -145,7 +145,7 @@ resource "aws_autoscaling_group" "bastions-vault-demo-useless-mobi" {
   launch_configuration = "${aws_launch_configuration.bastions-vault-demo-useless-mobi.id}"
   max_size             = 1
   min_size             = 1
-  vpc_zone_identifier  = ["subnet-026870ae093b2ca77", "subnet-00c58d3cf84e4f1a2", "subnet-0c2996ef41530ab62"]
+  vpc_zone_identifier  = ["subnet-093e9b3ab369ce081", "subnet-01f0757b77ef3d4e1", "subnet-0543b5d10bd887a5b"]
 
   tag = {
     key                 = "KubernetesCluster"
@@ -198,7 +198,7 @@ resource "aws_autoscaling_group" "master-eu-west-1a-masters-vault-demo-useless-m
   launch_configuration = "${aws_launch_configuration.master-eu-west-1a-masters-vault-demo-useless-mobi.id}"
   max_size             = 1
   min_size             = 1
-  vpc_zone_identifier  = ["subnet-0fc2244bedebebdac"]
+  vpc_zone_identifier  = ["subnet-0f34944d2f036c22b"]
 
   tag = {
     key                 = "KubernetesCluster"
@@ -251,7 +251,7 @@ resource "aws_autoscaling_group" "master-eu-west-1b-masters-vault-demo-useless-m
   launch_configuration = "${aws_launch_configuration.master-eu-west-1b-masters-vault-demo-useless-mobi.id}"
   max_size             = 1
   min_size             = 1
-  vpc_zone_identifier  = ["subnet-0dd0974ad2126d068"]
+  vpc_zone_identifier  = ["subnet-06b1d6094b71fed3d"]
 
   tag = {
     key                 = "KubernetesCluster"
@@ -304,7 +304,7 @@ resource "aws_autoscaling_group" "master-eu-west-1c-masters-vault-demo-useless-m
   launch_configuration = "${aws_launch_configuration.master-eu-west-1c-masters-vault-demo-useless-mobi.id}"
   max_size             = 1
   min_size             = 1
-  vpc_zone_identifier  = ["subnet-06023563a7762b748"]
+  vpc_zone_identifier  = ["subnet-0a2497254954840d4"]
 
   tag = {
     key                 = "KubernetesCluster"
@@ -357,7 +357,7 @@ resource "aws_autoscaling_group" "nodes-vault-demo-useless-mobi" {
   launch_configuration = "${aws_launch_configuration.nodes-vault-demo-useless-mobi.id}"
   max_size             = 3
   min_size             = 3
-  vpc_zone_identifier  = ["subnet-0fc2244bedebebdac", "subnet-0dd0974ad2126d068", "subnet-06023563a7762b748"]
+  vpc_zone_identifier  = ["subnet-0f34944d2f036c22b", "subnet-06b1d6094b71fed3d", "subnet-0a2497254954840d4"]
 
   tag = {
     key                 = "KubernetesCluster"
@@ -518,7 +518,7 @@ resource "aws_elb" "api-vault-demo-useless-mobi" {
   }
 
   security_groups = ["${aws_security_group.api-elb-vault-demo-useless-mobi.id}"]
-  subnets         = ["subnet-00c58d3cf84e4f1a2", "subnet-026870ae093b2ca77", "subnet-0c2996ef41530ab62"]
+  subnets         = ["subnet-01f0757b77ef3d4e1", "subnet-0543b5d10bd887a5b", "subnet-093e9b3ab369ce081"]
 
   health_check = {
     target              = "SSL:443"
@@ -547,7 +547,7 @@ resource "aws_elb" "bastion-vault-demo-useless-mobi" {
   }
 
   security_groups = ["${aws_security_group.bastion-elb-vault-demo-useless-mobi.id}"]
-  subnets         = ["subnet-00c58d3cf84e4f1a2", "subnet-026870ae093b2ca77", "subnet-0c2996ef41530ab62"]
+  subnets         = ["subnet-01f0757b77ef3d4e1", "subnet-0543b5d10bd887a5b", "subnet-093e9b3ab369ce081"]
 
   health_check = {
     target              = "TCP:22"
@@ -764,7 +764,7 @@ resource "aws_route53_record" "bastion-vault-demo-useless-mobi" {
 
 resource "aws_security_group" "api-elb-vault-demo-useless-mobi" {
   name        = "api-elb.vault-demo.useless.mobi"
-  vpc_id      = "vpc-0e0622f03704389b4"
+  vpc_id      = "vpc-07c93b78357bb8450"
   description = "Security group for api ELB"
 
   tags = {
@@ -776,7 +776,7 @@ resource "aws_security_group" "api-elb-vault-demo-useless-mobi" {
 
 resource "aws_security_group" "bastion-elb-vault-demo-useless-mobi" {
   name        = "bastion-elb.vault-demo.useless.mobi"
-  vpc_id      = "vpc-0e0622f03704389b4"
+  vpc_id      = "vpc-07c93b78357bb8450"
   description = "Security group for bastion ELB"
 
   tags = {
@@ -788,7 +788,7 @@ resource "aws_security_group" "bastion-elb-vault-demo-useless-mobi" {
 
 resource "aws_security_group" "bastion-vault-demo-useless-mobi" {
   name        = "bastion.vault-demo.useless.mobi"
-  vpc_id      = "vpc-0e0622f03704389b4"
+  vpc_id      = "vpc-07c93b78357bb8450"
   description = "Security group for bastion"
 
   tags = {
@@ -800,7 +800,7 @@ resource "aws_security_group" "bastion-vault-demo-useless-mobi" {
 
 resource "aws_security_group" "masters-vault-demo-useless-mobi" {
   name        = "masters.vault-demo.useless.mobi"
-  vpc_id      = "vpc-0e0622f03704389b4"
+  vpc_id      = "vpc-07c93b78357bb8450"
   description = "Security group for masters"
 
   tags = {
@@ -812,7 +812,7 @@ resource "aws_security_group" "masters-vault-demo-useless-mobi" {
 
 resource "aws_security_group" "nodes-vault-demo-useless-mobi" {
   name        = "nodes.vault-demo.useless.mobi"
-  vpc_id      = "vpc-0e0622f03704389b4"
+  vpc_id      = "vpc-07c93b78357bb8450"
   description = "Security group for nodes"
 
   tags = {
@@ -907,6 +907,14 @@ resource "aws_security_group_rule" "https-elb-to-master" {
   type                     = "ingress"
   security_group_id        = "${aws_security_group.masters-vault-demo-useless-mobi.id}"
   source_security_group_id = "${aws_security_group.api-elb-vault-demo-useless-mobi.id}"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+}
+resource "aws_security_group_rule" "https-vault-to-master" {
+  type                     = "ingress"
+  security_group_id        = "${aws_security_group.masters-vault-demo-useless-mobi.id}"
+  source_security_group_id = "${module.vault_cluster.security_group_id}"
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"

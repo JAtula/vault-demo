@@ -8,7 +8,7 @@ module "tls-keys" {
   organization_name       = "Super Ops Oy"
   ca_common_name          = "Vault Root CA"
   common_name             = "vault"
-  dns_names               = ["vault.service.consul", "vault.useless.mobi"]
+  dns_names               = ["vault.useless.mobi"]
   ip_addresses            = ["127.0.0.1"]
   validity_period_hours   = 87600
   private_key_rsa_bits    = 4096

@@ -30,7 +30,7 @@ module "vault_cluster" {
   cluster_size  = 3
   instance_type = "t3.micro"
 
-  ami_id    = "ami-0c880966dce2a3643"
+  ami_id    = "ami-0a65c2cd08c919357"
   user_data = "${data.template_file.user_data_vault_cluster.rendered}"
 
   enable_s3_backend       = true
@@ -43,7 +43,7 @@ module "vault_cluster" {
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
-  allowed_ssh_cidr_blocks              = ["90.80.6.0/24"]
+  allowed_ssh_cidr_blocks              = ["90.80.4.43/32"]
   allowed_inbound_cidr_blocks          = ["90.80.0.0/21"]
   allowed_inbound_security_group_ids   = []
   allowed_inbound_security_group_count = 0

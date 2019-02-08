@@ -7,7 +7,7 @@ provider "aws" {
 
 terraform {
     backend "s3" {
-        bucket                  = "terraform-state-eyaitethoenu"
+        bucket                  = "terraform-state-nahghifiukae"
         key                     = "states/terraform.tfstate"
         region                  = "eu-west-1"
         profile                 = "tf_admin"
@@ -17,7 +17,7 @@ terraform {
 }
 data "aws_region" "current" {}
 data "aws_s3_bucket" "state-bucket" {
-  bucket = "terraform-state-eyaitethoenu"
+  bucket = "terraform-state-nahghifiukae"
 }
 
 output "state_bucket_name" {

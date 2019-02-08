@@ -142,7 +142,7 @@
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::terraform-state-eyaitethoenu"
+        "arn:aws:s3:::terraform-state-nahghifiukae"
       ]
     },
     {
@@ -150,7 +150,7 @@
       "Action": [
         "s3:Get*"
       ],
-      "Resource": "arn:aws:s3:::terraform-state-eyaitethoenu/vault-demo.useless.mobi/*"
+      "Resource": "arn:aws:s3:::terraform-state-nahghifiukae/vault-demo.useless.mobi/*"
     },
     {
       "Effect": "Allow",

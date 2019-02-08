@@ -1,5 +1,5 @@
 - name: Unseal Vault
-  run_once: true
+  run_once: false
   shell: |
     vault operator unseal {{ unseal_key_1 }}
     vault operator unseal {{ unseal_key_2 }}
