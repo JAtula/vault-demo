@@ -1,9 +1,9 @@
 # Securing Kubernetes
 
 ## Intro
-Hi y'all! It's been way too way too long since I last wrote anything. I might list a bunch reasons for the  long silence (among other things, I've found myself painting miniatures again - awesome!), but that's probably not interesting to anybody so let's get down to business shall we? 
+Hi, Y'all! It's been way too way too long since I last wrote anything. I might list a bunch reasons for the long silence (among other things, I've found myself painting miniatures again - awesome!), but that's probably not interesting to anybody so let's get down to business shall we? 
 
-On this occasion, we'll be looking into a pretty jucy topic. We're going to marry HashiCorp's Vault With a Kubernetes cluster for the purpose of serving (dynamic) secrets from Vault.
+On this occasion, we'll be looking into a pretty juicy topic. We're going to marry HashiCorp's Vault With a Kubernetes cluster for the purpose of serving (dynamic) secrets from Vault.
 
 ## Disclaimer
 
@@ -11,15 +11,15 @@ I'm not going to teach how to use the different tools that I've used setting up 
 
 ## So what is Vault?
 
-> HashiCorp Vault is a tool for securely accessing secrets. A secret is anything that you want to tightly control access to, such as API keys, passwords, or certificates. Vault provides a unified interface to any secret, while providing tight access control and recording a detailed audit log.
+> HashiCorp Vault is a tool for securely accessing secrets. A secret is anything that you want to tightly control access to, such as API keys, passwords, or certificates. Vault provides a unified interface to any secret while providing tight access control and recording a detailed audit log.
 
-So in short, it's a one-stop-shop for all your secrets handling needs. For example, just imagine the hazzle of renewing SSL certificates for an internal load balancer in AWS. The internal CA service that ACM offers is great, but it does come with a cost of 400$ (last I checked) a month which is quite expensive.
+So in short, it's a one-stop-shop for all your secrets handling needs. For example, just imagine the hassle of renewing SSL certificates for an internal load balancer in AWS. The internal CA service that ACM offers is great, but it does come with a cost of 400$ (last I checked) a month which is quite expensive.
 
 With Vault, you get a single API to renew, fetch and revoke your certificates - so no more `openssl <try to remember the commands you use once a year>`. Now you can easily write a small program (read: lambda handler) to renew your certificates for a fraction of the cost of an ACM provisioned internal CA. 
 
-Today though, we're interested in injecting key-value pairs to containers being spun on a Kubernetes cluster. Normally people use the secrets API of Kubernetes to store and serve secrets as environment variables. Now this approach is completely fine, but you really should take care of encrypting ETCDs disks and limit access to the secrets API if you take this route, and most people do.
+Today though, we're interested in injecting key-value pairs to containers being spun on a Kubernetes cluster. Normally people use the secrets API of Kubernetes to store and serve secrets as environment variables. Now, this approach is completely fine, but you really should take care of encrypting ETCDs disks and limit access to the secrets API if you take this route, and most people do.
 
-Using Vault however, to provision and store your secrets, is more operator and especially developer friendly IMO. "Why?" You might ask. Well firstly, secrets are only ever store encryted, even if the storage being used is not. Vault takes care, that nothing leaves its security boundary decrypted. It also takes care of decrypting when secrets are read from Vault. Another thing is easy IAM. Setting up fine-grained access policies is really simple. For example, here's the Kubernetes service account policy I made for this exercise:
+Using Vault, however, to provision and store your secrets, is more operator and especially developer friendly IMO. "Why?" You might ask. Well firstly, secrets are only ever stored encrypted, even if the storage being used is not. Vault takes care, that nothing leaves its security boundary decrypted. It also takes care of decrypting when secrets are read from Vault. Another thing is easy IAM. Setting up fine-grained access policies is really simple. For example, here's the Kubernetes service account policy I made for this exercise:
 ```
 path "secret/*" {
   capabilities = [ "read", "list" ]
@@ -40,7 +40,7 @@ So let's get cracking to see Vault in action.
 
 ## Setting the environment
 
-In this chapter, we setup a highly available Kubernetes and Vault clusters in AWS. You can follow along, but take note that I'm using a registered public domain for ease of use. You'll need to either fork and adjust some parameters in the repo or get yourself a public domain to follow along.
+In this chapter, we set up a highly available Kubernetes and Vault clusters in AWS. You can follow along, but take note that I'm using a registered public domain for ease of use. You'll need to either fork and adjust some parameters in the repo or get yourself a public domain to follow along.
 
 ### Prerequisites
 * Kubectl.
@@ -61,7 +61,7 @@ In this chapter, we setup a highly available Kubernetes and Vault clusters in AW
 
 1. **Bootstrap the Terraform state**
 
-This will provision a S3 bucket and a DynamoDB table for Terraform remote state handling 
+This will provide an S3 bucket and a DynamoDB table for Terraform remote state handling 
 ```
 ./bootstrap.sh default eu-west-1
 ```
@@ -117,7 +117,7 @@ Take note of the build AMI ID, as we will need it soon. Now, let's provision the
 ```
 ./create-k8s.sh
 ```
-The script automatically exports a `kubernetes.tf` template and data directory with ASG launch configurations and AWS roles and policies. You'll want to comment out at least the `provider` block and the `vpc_id` output block as they overlap with `vpc.tf`, but personally I also commented out all the network related outputs because of redundancy. They're already being output in the `vpc.tf` template. 
+The script automatically exports a `kubernetes.tf` template and data directory with ASG launch configurations and AWS roles and policies. You'll want to comment out at least the `provider` block and the `vpc_id` output block as they overlap with `vpc.tf`, but personally, I also commented out all the network related outputs because of redundancy. They're already being output in the `vpc.tf` template. 
 
 Now, if you run: 
 
@@ -149,7 +149,7 @@ ip-90-80-3-204.eu-west-1.compute.internal   Ready    master   14m   v1.11.6   90
 
 That said, I do personally like emulate stuff as much production ready as I can. You never step into (all) the pitfalls if you play it safe. Doing the work at this point saves a lot down the road for sure. 
 
-Just a couple of steps more to get everything up and running. Next, we provision Vault. Uncomment the template if you haven't already, input the AMI ID from previous step and modify the allowed SSH CIDR for the correct address of the bastion node. Then run: 
+Just a couple of steps more to get everything up and running. Next, we provision Vault. Uncomment the template if you haven't already, input the AMI ID from the previous step and modify the allowed SSH CIDR for the correct address of the bastion node. Then run: 
 ```
 terraform init
 terraform plan
@@ -168,7 +168,7 @@ clusterrolebinding.rbac.authorization.k8s.io/tiller created
 clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
 serviceaccount/vault-handler created
 ```
-Especially the `vault-handler` service account is of interest here. We need it to authenticate with Vault. Now, to actually connect to Vault UI, which is accessable (only) internally inside our VPC, we will install a OpenVPN server to our cluster. For this, you'll need Helm and the OpenVPN chart. Remember to go through the default settings. I personally used the `custom-value.yaml`.
+Especially the `vault-handler` service account is of interest here. We need it to authenticate with Vault. Now, to actually connect to Vault UI, which is accessible (only) internally inside our VPC, we will install an OpenVPN server to our cluster. For this, you'll need to use Helm and the OpenVPN chart. Remember to go through the default settings. I personally used the `custom-value.yaml`.
 
 
 Then fetch the SA token and cert like this:
@@ -219,11 +219,11 @@ And then run the playbook:
 ansible-playbook -i inventory -l vault-nodes -t vault vault.yml --vault-password-file vault_pass
 ```
 
-Final step is to add a DNS record to Route53 for Vault and volá, we've got a live (production ready) Vault up and running. 
+The final step is to add a DNS record to Route53 for Vault and volá, we've got a live (production ready) Vault up and running. 
 
 ![Vault](./assets/vault.png)
 
-The absolute last thing to do, is to open access for Vault to talk with Kubernetes. For that I'm adding the below AWS Security Group Rule configuration block to the `kubernetes.tf` template (anywhere in the template is fine).
+The absolute last thing to do is to open access for Vault to talk with Kubernetes. For that, I'm adding the below AWS Security Group Rule configuration block to the `kubernetes.tf` template (anywhere in the template is fine).
 ```
 resource "aws_security_group_rule" "https-vault-to-master" {
   type                     = "ingress"
@@ -237,7 +237,7 @@ resource "aws_security_group_rule" "https-vault-to-master" {
 
 ### To use secrets from Vault
 
-So now, we've finally at a point where we can see some Vault magic. I've got a demo application ready made, if you don't feel like using your own. There are a couple of points to note. Firstly, I'm adding an init container to the Kubernetes deployment manifest that fetches application secrets from Vault and writes them to disk that the parent container also maps.
+So now, we've finally at a point where we can see some Vault magic. I've got a demo application ready-made if you don't feel like using your own. There are a couple of points to note. Firstly, I'm adding an init container to the Kubernetes deployment manifest that fetches application secrets from Vault and writes them to disk that the parent container also maps.
 
 ```
 spec:
@@ -264,7 +264,7 @@ spec:
           mountPath: /etc/vault
 ```
 
-So I fetch the secrets to a json dump, parse it to an environment variable file that I then source in the Dockerfile:
+So I fetch the secrets to a JSON dump, parse it to an environment variable file that I then source in the Dockerfile:
 
 ```
 FROM golang:1.11.5-alpine
@@ -307,6 +307,6 @@ Before you go, please remember to delete everything `terraform destroy -auto-app
 
 ### TL;DR
 
-Kubernetes secrets is a mediocre solution at best, Vault is better but way more complex to setup. Choosing the best option is always a case-by-case call.
+Kubernetes secrets is a mediocre solution at best, Vault is better but way more complex to set up. Choosing the best option is always a case-by-case call.
 
 If you need help with Amazon, Kubernetes or Vault or just interested in anything CNCF has to offer, don't hesitate to contact your friendly neighborhood DevOps company! 
